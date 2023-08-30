@@ -5,19 +5,19 @@
 """
 import time
 
-NO_EVENT = 0
-BTN1_PRESS = 1
-BTN1_RELEASE = 2
-BTN2_PRESS = 3
-BTN2_RELEASE = 4
-BTN3_PRESS = 5
-BTN3_RELEASE = 6
-BTN4_PRESS = 7
-BTN4_RELEASE = 8
-TIMEOUT = 9
 
-NUMEVENTS = 10
-EVENTNAMES = ["NO_EVENT", "BTN1_PRESS", "BTN1_RELEASE", "BTN2_PRESS","BTN2_RELEASE",
+BTN1_PRESS = 0
+BTN1_RELEASE = 1
+BTN2_PRESS = 2
+BTN2_RELEASE = 3
+BTN3_PRESS = 4
+BTN3_RELEASE = 5
+BTN4_PRESS = 6
+BTN4_RELEASE = 7
+TIMEOUT = 8
+
+NUMEVENTS = 9
+EVENTNAMES = ["BTN1_PRESS", "BTN1_RELEASE", "BTN2_PRESS","BTN2_RELEASE",
                 "BTN3_PRESS", "BTN3_RELEASE", "BTN4_PRESS","BTN4_RELEASE",
                 "TIMEOUT"]
 
@@ -29,24 +29,9 @@ class Model:
     which is the start state.
 
     Also takes a handler which is just a reference to a class that has
-    three responder methods. The responder methods for stateEntered and
-    stateLeft receives the state that was entered or left,
-    with the event code that caused it. stateDo only receives the current
-    state.
-    
-        stateEntered(state, event)
-        stateLeft(state, event)
-        stateDo(state)
-
-    Currently there are 10 hardcoded events that are supported.
-    
-    * BTN1_PRESS/RELEASE through BTN4_PRESS/RELEASE are for button presses
-    and releases - in the order they are created.
-    * TIMEOUT is the event for a software or hardware timer. Only one
-    timer can be active at a time
-    * NO_EVENT is for non-event-related transitions. So if a state performs 
-    the entry actions and do actions and then immediately goes to the next state, 
-    NO_EVENT can be used. 
+    two responder methods:
+        stateEntered(state)
+        stateLeft(state)
 
     The calling class or the handler must override stateEntered and
     stateLeft to perform actions as per the state model
@@ -85,7 +70,7 @@ class Model:
         self._buttons = []
         self._timer = None
 
-    def addTransition(self, fromState, events, toState):
+    def addTransition(self, fromState, event, toState):
         """
         Once the model is created, you must add all the transitions
         for known events. The model can handle events for button presses
@@ -93,15 +78,15 @@ class Model:
         event created by a software or hardware timer. See documentation
         of the Counters classes to see how to use them.
         """
-        for event in events:
-            self._transitions[fromState][event] = toState
+        
+        self._transitions[fromState][event] = toState
     
     def start(self):
         """ start the state model - always starts at state 0 as the start state """
         
         self._curState = 0
         self._running = True
-        self._handler.stateEntered(self._curState, NO_EVENT)  # start the state model
+        self._handler.stateEntered(self._curState)  # start the state model
 
     def stop(self):
         """
@@ -110,11 +95,11 @@ class Model:
         """
     
         if self._running:
-            self._handler.stateLeft(self._curState, NO_EVENT)
+            self._handler.stateLeft(self._curState)
         self._running = False
         self._curState = -1
 
-    def gotoState(self, newState, event=NO_EVENT):
+    def gotoState(self, newState):
         """
         force the state model to go to a new state. This may be necessary to call
         in response to an event that is not automatically handled by the Model class.
@@ -124,9 +109,9 @@ class Model:
         if (newState < self._numstates):
             if self._debug:
                 print(f"Going from State {self._curState} to State {newState}")
-            self._handler.stateLeft(self._curState, event)
+            self._handler.stateLeft(self._curState)
             self._curState = newState
-            self._handler.stateEntered(self._curState, event)
+            self._handler.stateEntered(self._curState)
 
     def processEvent(self, event):
         """
@@ -144,12 +129,11 @@ class Model:
             newstate = self._transitions[self._curState][event]
             if newstate is None:
                 if self._debug:
-                    if event != NO_EVENT:
-                        print(f"Ignoring event {EVENTNAMES[event]}")
+                    print(f"Ignoring event {EVENTNAMES[event]}")
             else:
                 if self._debug:
                     print(f"Processing event {EVENTNAMES[event]}")
-                self.gotoState(self._transitions[self._curState][event], event)
+                self.gotoState(self._transitions[self._curState][event])
 
     def run(self, delay=0.1):        
         # Start the model first
@@ -161,7 +145,7 @@ class Model:
             # Do not perform entry and exit actions here - those are separate
                         
             self._handler.stateDo(self._curState)
-            self.processEvent(NO_EVENT)
+            
             # Ping the timer if it is a software timer
             if self._timer is not None and type(self._timer).__name__ == 'SoftwareTimer':
                 self._timer.check()
