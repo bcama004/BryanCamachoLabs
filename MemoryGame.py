@@ -8,10 +8,10 @@ from machine import *
 
 class MemoryGame:
 
-"""
-This class is for the memory game which will feature color coded buttons and lights
-with a display showing an assortment of relevant messages
-"""
+  """
+  This class is for the memory game which will feature color coded buttons and lights
+  with a display showing an assortment of relevant messages
+  """
 
   def __init__(self):
     self._display = LCDDisplay(sda = 0, scl = 1, i2cid = 0)
@@ -27,9 +27,9 @@ with a display showing an assortment of relevant messages
 
   def display(self):
 
-"""
-Welcome Message
-"""
+    """
+    Welcome Message
+    """
 
     self._display.showText('Test Your Mind')
 
@@ -43,9 +43,9 @@ Welcome Message
   def exit(self):        
     self.exit()
 
-"""
-Methods for button behaviors
-"""
+  """
+  Methods for button behaviors
+  """
 
   def blinkRedLight(self):
     lightRed = Light(13, "1")
