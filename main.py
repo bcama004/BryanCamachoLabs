@@ -1,9 +1,8 @@
 import time
-from CounterGadget import *
-
+from MemoryGame import *
 time.sleep(0.1) # Wait for USB to become ready
 
 print("Hello, Pi Pico!")
 
-counter = CounterGadget()
-counter.run()
+game = MemoryGame()
+game.run()
