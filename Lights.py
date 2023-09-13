@@ -50,7 +50,7 @@ class Light:
         
         print(f"Light: Toggling {self._name} light at pin {self._pin}")
         self._led.toggle()
-
+        
     def blink(self, delay=0.5, times=1):
         """ blink: turn on for delay sec, off for delay sec [times] times"""
 
@@ -60,7 +60,7 @@ class Light:
             utime.sleep(delay)
             self.off()
             utime.sleep(delay)
-
+        
 
 class DimLight(Light):
     """
