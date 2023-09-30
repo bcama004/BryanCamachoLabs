@@ -220,6 +220,12 @@ class NeoPixel(CompositeLight):
 
         self.pixels_fill(WHITE)
         self.pixels_show()
+
+    def onRed(self):
+        """ Turn all LEDs ON - all red """
+
+        self.pixels_fill(RED)
+        self.pixels_show()
     
     def off(self):
         """ Turn all LEDs OFF - all black """
